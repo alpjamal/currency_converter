@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import '../utilities/constants.dart';
 
 class Inputs extends StatefulWidget {
-  final double totalAmount;
+  final int totalAmount;
   const Inputs(this.totalAmount, {super.key});
 
   @override
@@ -77,22 +77,9 @@ class _InputsState extends State<Inputs> {
               padding: const EdgeInsets.only(bottom: 20),
               child: Text('Currency Converter', style: kCurrencyAmountStyle),
             ),
-            MyDropdownButton(baseCurrency, selectBaseCurrency,
-                child: Text(
-                  widget.totalAmount.toString(),
-                  style: kCurrencyAmountStyle,
-                )),
+            MyDropdownButton(baseCurrency, selectBaseCurrency, false, widget.totalAmount.toString()),
             IconButton(onPressed: () => convert(), icon: Icon(FontAwesomeIcons.rotate), iconSize: 40),
-            MyDropdownButton(
-              targetCurrency,
-              selectTargetCurrency,
-              child: isLoading
-                  ? CircularProgressIndicator(color: Colors.white)
-                  : Text(
-                      result.toStringAsFixed(1),
-                      style: kCurrencyAmountStyle,
-                    ),
-            ),
+            MyDropdownButton(targetCurrency, selectTargetCurrency, isLoading, result.toStringAsFixed(1)),
           ],
         ),
       ),
@@ -103,8 +90,9 @@ class _InputsState extends State<Inputs> {
 class MyDropdownButton extends StatelessWidget {
   final String selectedCurrency;
   final Function selectCurrency;
-  final Widget child;
-  const MyDropdownButton(this.selectedCurrency, this.selectCurrency, {required this.child, super.key});
+  final bool isLoading;
+  final String label;
+  const MyDropdownButton(this.selectedCurrency, this.selectCurrency, this.isLoading, this.label, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +117,8 @@ class MyDropdownButton extends StatelessWidget {
           },
         ),
         Spacer(),
-        child,
+        if (isLoading) CircularProgressIndicator(color: Colors.white),
+        if (!isLoading) Text(label, style: kCurrencyAmountStyle),
       ],
     );
   }

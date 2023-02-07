@@ -17,23 +17,25 @@ class NumPad extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.all(0),
             margin: EdgeInsets.all(0),
-            color: Colors.black.withOpacity(0.5),
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                mainAxisExtent: MediaQuery.of(context).size.height / 8,
+                mainAxisSpacing: 2,
+                crossAxisSpacing: 2,
+                mainAxisExtent: MediaQuery.of(context).size.height / 8 - 2,
               ),
               itemCount: 12,
               padding: EdgeInsets.all(0),
               itemBuilder: (ctx, index) {
-                return GestureDetector(
-                  onTap: () {
-                    enterAmount(numpadItems[index]);
-                  },
-                  child: Center(
-                    child: Text(
-                      numpadItems[index],
-                      style: TextStyle(color: Colors.white, fontSize: 35),
+                return InkWell(
+                  splashColor: Colors.white,
+                  onTap: () => enterAmount(numpadItems[index]),
+                  child: Container(
+                    color: numpadItems[index] == '.' ? Colors.black.withOpacity(0.7) : Colors.black.withOpacity(0.5),
+                    child: Center(
+                      child: numpadItems[index] == '.'
+                          ? Icon(Icons.check, size: 40)
+                          : Text(numpadItems[index], style: kCurrencyAmountStyle.copyWith(fontSize: 35)),
                     ),
                   ),
                 );

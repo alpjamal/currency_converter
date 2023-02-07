@@ -13,16 +13,16 @@ class ConverterScreen extends StatefulWidget {
 class _ConverterScreenState extends State<ConverterScreen> {
   String userInput = '0';
 
-  double totalAmount = 0.0;
+  int totalAmount = 0;
 
   enterAmount(String amount) {
     setState(() {
       if (amount == 'C') {
         userInput = '0';
-      } else {
+      } else if (amount != '.') {
         userInput += amount;
       }
-      totalAmount = double.parse(userInput);
+      totalAmount = int.parse(userInput);
     });
   }
 
