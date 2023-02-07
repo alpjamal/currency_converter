@@ -1,98 +1,67 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 import '../utilities/constants.dart';
+import '../providers/currency_provider.dart';
 
-class Inputs extends StatefulWidget {
-  final int totalAmount;
-  const Inputs(this.totalAmount, {super.key});
-
-  @override
-  State<Inputs> createState() => _InputsState();
-}
-
-List<String> currencies = [];
-
-class _InputsState extends State<Inputs> {
-  @override
-  void initState() {
-    super.initState();
-    getCurrencies();
-  }
-
-  getCurrencies() async {
-    final url = Uri.parse('https://v6.exchangerate-api.com/v6/$apiKey/latest/usd');
-    final res = await http.get(url);
-    final Map result = json.decode(res.body)['conversion_rates'];
-    result.forEach((key, value) {
-      currencies.add(key);
-    });
-    setState(() {});
-  }
-
-  String baseCurrency = 'USD';
-  String targetCurrency = 'UZS';
-  double result = 0.0;
-  bool isLoading = false;
-
-  selectBaseCurrency(String selectedCurrency) {
-    setState(() {
-      baseCurrency = selectedCurrency;
-    });
-  }
-
-  selectTargetCurrency(String selectedCurrency) {
-    setState(() {
-      targetCurrency = selectedCurrency;
-    });
-  }
-
-  Future convert() async {
-    setState(() {
-      isLoading = true;
-    });
-    final url = Uri.parse(
-        'https://v6.exchangerate-api.com/v6/$apiKey/pair/$baseCurrency/$targetCurrency/${widget.totalAmount}');
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      setState(() {
-        result = double.parse(json.decode(response.body)['conversion_result'].toString());
-        isLoading = false;
-      });
-    }
-  }
+class Inputs extends StatelessWidget {
+  const Inputs({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final Currency data = Provider.of<Currency>(context, listen: false);
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Text('Currency Converter', style: kCurrencyAmountStyle),
-            ),
-            MyDropdownButton(baseCurrency, selectBaseCurrency, false, widget.totalAmount.toString()),
-            IconButton(onPressed: () => convert(), icon: Icon(FontAwesomeIcons.rotate), iconSize: 40),
-            MyDropdownButton(targetCurrency, selectTargetCurrency, isLoading, result.toStringAsFixed(1)),
-          ],
-        ),
+        child: FutureBuilder(
+            future: data.getCurrencies(),
+            builder: (ctx, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator(color: Colors.white));
+              }
+              return Consumer<Currency>(builder: (ctx, value, child) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('Currency Converter', style: kCurrencyAmountStyle),
+                    MyDropdownButton(
+                      pickedCurrency: value.baseCurrency,
+                      selectCurrency: value.selectBaseCurrency,
+                      amount: value.totalAmount.toString(),
+                      currencyData: value,
+                      isLoading: false,
+                    ),
+                    MyDropdownButton(
+                      pickedCurrency: value.targetCurrency,
+                      selectCurrency: value.selectTargetCurrency,
+                      amount: value.result.toStringAsFixed(1),
+                      currencyData: value,
+                      isLoading: value.isLoading,
+                    ),
+                  ],
+                );
+              });
+            }),
       ),
     );
   }
 }
 
 class MyDropdownButton extends StatelessWidget {
-  final String selectedCurrency;
+  final String pickedCurrency;
   final Function selectCurrency;
+  final String amount;
+  final Currency currencyData;
   final bool isLoading;
-  final String label;
-  const MyDropdownButton(this.selectedCurrency, this.selectCurrency, this.isLoading, this.label, {super.key});
+  const MyDropdownButton({
+    required this.pickedCurrency,
+    required this.selectCurrency,
+    required this.amount,
+    required this.currencyData,
+    required this.isLoading,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -103,22 +72,13 @@ class MyDropdownButton extends StatelessWidget {
           underline: SizedBox(),
           dropdownColor: Colors.black,
           style: TextStyle(color: Colors.white, fontSize: 25),
-          value: selectedCurrency,
-          items: currencies
-              .map(
-                (item) => DropdownMenuItem(
-                  value: item,
-                  child: Text(item),
-                ),
-              )
-              .toList(),
-          onChanged: (value) {
-            selectCurrency(value);
-          },
+          value: pickedCurrency,
+          items: currencyData.currencies.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
+          onChanged: (value) => selectCurrency(value),
         ),
         Spacer(),
         if (isLoading) CircularProgressIndicator(color: Colors.white),
-        if (!isLoading) Text(label, style: kCurrencyAmountStyle),
+        if (!isLoading) Text(amount, style: kCurrencyAmountStyle),
       ],
     );
   }

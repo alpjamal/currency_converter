@@ -1,15 +1,17 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/currency_provider.dart';
 import '../utilities/constants.dart';
 
-// ignore: must_be_immutable
 class NumPad extends StatelessWidget {
-  Function enterAmount;
-  NumPad(this.enterAmount, {super.key});
+  const NumPad({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final data = Provider.of<Currency>(context, listen: false);
+
     return Expanded(
       child: ClipRRect(
         child: BackdropFilter(
@@ -24,14 +26,15 @@ class NumPad extends StatelessWidget {
                 crossAxisSpacing: 2,
                 mainAxisExtent: MediaQuery.of(context).size.height / 8 - 2,
               ),
+              physics: ScrollPhysics(),
               itemCount: 12,
               padding: EdgeInsets.all(0),
               itemBuilder: (ctx, index) {
                 return InkWell(
                   splashColor: Colors.white,
-                  onTap: () => enterAmount(numpadItems[index]),
+                  onTap: () => data.enterAmount(numpadItems[index]),
                   child: Container(
-                    color: numpadItems[index] == '.' ? Colors.black.withOpacity(0.7) : Colors.black.withOpacity(0.5),
+                    color: Colors.black.withOpacity(0.5),
                     child: Center(
                       child: numpadItems[index] == '.'
                           ? Icon(Icons.check, size: 40)

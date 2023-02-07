@@ -3,28 +3,8 @@ import 'package:flutter/material.dart';
 import '../widgets/input_result.dart';
 import '../widgets/numpad.dart';
 
-class ConverterScreen extends StatefulWidget {
+class ConverterScreen extends StatelessWidget {
   const ConverterScreen({super.key});
-
-  @override
-  State<ConverterScreen> createState() => _ConverterScreenState();
-}
-
-class _ConverterScreenState extends State<ConverterScreen> {
-  String userInput = '0';
-
-  int totalAmount = 0;
-
-  enterAmount(String amount) {
-    setState(() {
-      if (amount == 'C') {
-        userInput = '0';
-      } else if (amount != '.') {
-        userInput += amount;
-      }
-      totalAmount = int.parse(userInput);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +19,8 @@ class _ConverterScreenState extends State<ConverterScreen> {
         ),
         child: Column(
           children: [
-            Inputs(totalAmount),
-            NumPad(enterAmount),
+            Inputs(),
+            NumPad(),
           ],
         ),
       ),
