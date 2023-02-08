@@ -2,7 +2,7 @@
     package="com.example.currency_converter">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="currency_converter"
+        android:label="Currency Converter"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

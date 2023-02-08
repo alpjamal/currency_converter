@@ -22,12 +22,12 @@ dev_dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.11.0
 
-# flutter_icons:
-  # android: true
-  # ios: true
-  # image_path: "assets/launch_icons/currency.png"
-  # adaptive_icon_background: "#191919"
-  # adaptive_icon_foreground: "assets/launch_icons/currency.png"
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/launch_icons/currency.png"
+  adaptive_icon_background: "#191919"
+  adaptive_icon_foreground: "assets/launch_icons/currency.png"
 
   flutter_lints: ^2.0.0
 
